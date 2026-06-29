@@ -54,6 +54,7 @@ class MainActivity : AppCompatActivity() {
         navView.setNavigationItemSelectedListener {
             if (it.itemId == R.id.nav_logout) {
                 startActivity(Intent(applicationContext, LoginActivity::class.java))
+                viewModel.logout()
                 finish()
             } else {
                 NavigationUI.onNavDestinationSelected(it, navController)

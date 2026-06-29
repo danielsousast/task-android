@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.devmasterteam.tasks.service.model.ValidationModel
 import com.devmasterteam.tasks.service.repository.PersonRepository
+import com.devmasterteam.tasks.service.repository.remote.RetrofitClient
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(application: Application) : BaseViewModel(application) {
@@ -19,6 +20,9 @@ class RegisterViewModel(application: Application) : BaseViewModel(application) {
                 val response = personRepository.create(name, email, password, "false")
                 if (response.isSuccessful && response.body() != null) {
                     val person = response.body()!!
+
+                    RetrofitClient.addHeaders(person.token, person.personKey)
+
                     saveUserAuth(person)
                     _createUser.value = ValidationModel()
                 } else {
