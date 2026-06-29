@@ -81,6 +81,19 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener,
             val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, list)
             binding.spinnerPriority.adapter = adapter
         }
+
+        viewModel.taskSaved.observe(this) {
+            if (it.success()) {
+                if (taskId == 0) {
+                    toast(getString(R.string.msg_task_created))
+                } else {
+                    toast(getString(R.string.msg_task_updated))
+                }
+                finish()
+            } else {
+                toast(it.message())
+            }
+        }
     }
 
     private fun toast(str: String) {

@@ -15,7 +15,7 @@ interface PriorityDAO {
     fun list(): Flow<List<PriorityModel>>
 
     @Query("SELECT description FROM priority WHERE id = :id")
-    suspend fun getDescription(id: Int): String?
+    suspend fun getDescription(id: Int): String
 
     @Query("DELETE FROM priority")
     suspend fun clear()

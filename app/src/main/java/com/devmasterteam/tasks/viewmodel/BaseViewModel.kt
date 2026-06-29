@@ -2,7 +2,9 @@ package com.devmasterteam.tasks.viewmodel
 
 import androidx.lifecycle.AndroidViewModel
 import android.app.Application
+import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.service.constants.TaskConstants
+import com.devmasterteam.tasks.service.exception.NoInternetException
 import com.devmasterteam.tasks.service.model.PersonModel
 import com.devmasterteam.tasks.service.model.ValidationModel
 import com.devmasterteam.tasks.service.repository.local.PreferencesManager
@@ -21,5 +23,13 @@ open class BaseViewModel(application: Application): AndroidViewModel(application
         preferencesManager.store(TaskConstants.SHARED.TOKEN_KEY, person.token)
         preferencesManager.store(TaskConstants.SHARED.PERSON_KEY, person.personKey)
         preferencesManager.store(TaskConstants.SHARED.PERSON_NAME, person.name)
+    }
+
+    fun handleException(e: Exception): ValidationModel {
+        if (e is NoInternetException) {
+            return ValidationModel(e.errorMessage)
+        } else {
+            return ValidationModel(getApplication<Application>().applicationContext.getString(R.string.error_unexpected))
+        }
     }
 }

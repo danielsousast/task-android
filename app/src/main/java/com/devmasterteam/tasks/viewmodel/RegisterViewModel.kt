@@ -10,7 +10,7 @@ import com.devmasterteam.tasks.service.repository.remote.RetrofitClient
 import kotlinx.coroutines.launch
 
 class RegisterViewModel(application: Application) : BaseViewModel(application) {
-    private val personRepository = PersonRepository()
+    private val personRepository = PersonRepository(application.applicationContext)
     private val _createUser = MutableLiveData<ValidationModel>()
     val createUser: LiveData<ValidationModel> = _createUser
 
@@ -29,8 +29,7 @@ class RegisterViewModel(application: Application) : BaseViewModel(application) {
                     _createUser.value = errorMessage(response)
                 }
             } catch (e: Exception) {
-                _createUser.value = ValidationModel(e.toString())
-                println("ERROR LOG $e")
+                _createUser.value = handleException(e)
             }
         }
 
