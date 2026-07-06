@@ -18,8 +18,22 @@ class TaskRepository(context: Context): BaseRepository(context) {
         )}
     }
 
+    suspend fun update(task: TaskModel): Response<Boolean> {
+        return safeCall {  remote.update(
+            task.id,
+            task.priorityId,
+            task.description,
+            task.dueDate,
+            task.complete
+        )}
+    }
+
     suspend fun list(): Response<List<TaskModel>> {
         return safeCall { remote.list() }
+    }
+
+    suspend fun load(id: Int): Response<TaskModel> {
+        return safeCall { remote.getById(id) }
     }
 
     suspend fun listSevenDays(): Response<List<TaskModel>> {
@@ -32,6 +46,10 @@ class TaskRepository(context: Context): BaseRepository(context) {
 
     suspend fun complete(id: Int): Response<Boolean> {
         return safeCall { remote.complete(id) }
+    }
+
+    suspend fun delete(id: Int): Response<Boolean> {
+        return safeCall { remote.delete(id) }
     }
 
     suspend fun undo(id: Int): Response<Boolean> {

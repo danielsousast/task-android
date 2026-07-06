@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
-import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.service.constants.TaskConstants
 import com.devmasterteam.tasks.service.exception.NoInternetException
+import com.devmasterteam.tasks.service.helper.BiometricHelper
 import com.devmasterteam.tasks.service.model.ValidationModel
 import com.devmasterteam.tasks.service.repository.PersonRepository
 import com.devmasterteam.tasks.service.repository.PriorityRepository
@@ -37,7 +37,7 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
                     saveUserAuth(person)
                     _login.value = ValidationModel()
                 } else {
-                    _login.value = errorMessage(response)
+                    _login.value = parseErrorMessage(response)
                 }
             } catch (e: NoInternetException) {
                 _login.value = handleException(e)
@@ -52,16 +52,22 @@ class LoginViewModel(application: Application) : BaseViewModel(application) {
 
             RetrofitClient.addHeaders(token, personKey)
 
-            _isUserLogged.value = (token != "" && personKey != "")
+
+
+            _isUserLogged.value = (token != "" && personKey != "") && BiometricHelper.isBiometricAvailable(getApplication())
         }
     }
 
     fun getPriorities() {
         viewModelScope.launch {
-            val response =  priorityRepository.getList()
+            try {
+                val response =  priorityRepository.getList()
 
-            if (response.isSuccessful && response.body() != null) {
-                priorityRepository.save(response.body()!!)
+                if (response.isSuccessful && response.body() != null) {
+                    priorityRepository.save(response.body()!!)
+                }
+            } catch (e: Exception) {
+
             }
         }
     }

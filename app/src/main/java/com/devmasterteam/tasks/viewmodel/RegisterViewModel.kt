@@ -26,7 +26,7 @@ class RegisterViewModel(application: Application) : BaseViewModel(application) {
                     saveUserAuth(person)
                     _createUser.value = ValidationModel()
                 } else {
-                    _createUser.value = errorMessage(response)
+                    _createUser.value = parseErrorMessage(response)
                 }
             } catch (e: Exception) {
                 _createUser.value = handleException(e)

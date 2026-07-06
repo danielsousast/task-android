@@ -13,7 +13,7 @@ import retrofit2.Response
 
 open class BaseViewModel(application: Application): AndroidViewModel(application) {
     private val preferencesManager = PreferencesManager(application.applicationContext)
-    fun <T> errorMessage(response: Response<T>): ValidationModel {
+    fun <T> parseErrorMessage(response: Response<T>): ValidationModel {
         val msgJson = response.errorBody()?.string().toString()
         val msg = Gson().fromJson(msgJson, String::class.java)
         return ValidationModel(msg)

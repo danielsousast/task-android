@@ -13,6 +13,7 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.databinding.ActivityTaskFormBinding
+import com.devmasterteam.tasks.service.constants.TaskConstants
 import com.devmasterteam.tasks.service.model.PriorityModel
 import com.devmasterteam.tasks.service.model.TaskModel
 import com.devmasterteam.tasks.viewmodel.TaskFormViewModel
@@ -52,7 +53,17 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener,
         binding.buttonSave.setOnClickListener(this)
         binding.buttonDate.setOnClickListener(this)
 
+        loadTaskData()
+
         observe()
+    }
+
+    private fun loadTaskData() {
+       val bundle =  intent.extras
+        if (bundle != null) {
+            taskId = bundle.getInt(TaskConstants.BUNDLE.TASKID)
+            viewModel.load(taskId)
+        }
     }
 
     override fun onClick(v: View) {
@@ -94,6 +105,28 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener,
                 toast(it.message())
             }
         }
+
+        viewModel.task.observe(this) {
+            binding.editDescription.setText(it.description)
+            binding.checkComplete.isChecked = it.complete
+            val date = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(it.dueDate)
+            binding.buttonDate.text = dateFormat.format(date!!)
+            binding.buttonSave.text = getString(R.string.button_update_task)
+
+
+
+            binding.spinnerPriority.setSelection(getIndex(it.id))
+        }
+
+        viewModel.taskLoaded.observe(this) {
+            if (!it.success()) {
+                toast(it.message())
+            }
+        }
+    }
+
+    fun getIndex(id: Int): Int {
+        return listPriority.indexOfFirst { it.id == id}
     }
 
     private fun toast(str: String) {
@@ -106,7 +139,7 @@ class TaskFormActivity : AppCompatActivity(), View.OnClickListener,
         val dueDate = binding.buttonDate.text.toString()
         val priorityId = listPriority[binding.spinnerPriority.selectedItemPosition].id
         val task = TaskModel(
-            0,
+            taskId,
             priorityId,
             description,
             dueDate,

@@ -8,10 +8,13 @@ import android.view.View
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.biometric.BiometricPrompt
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import com.devmasterteam.tasks.R
 import com.devmasterteam.tasks.databinding.ActivityLoginBinding
 import com.devmasterteam.tasks.viewmodel.LoginViewModel
+import java.util.concurrent.Executor
 
 class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -64,7 +67,7 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
 
         viewModel.isUserLogged.observe(this) {
             if (it) {
-                startActivity(Intent(applicationContext, MainActivity::class.java))
+                showBiometric()
             }
         }
     }
@@ -74,5 +77,38 @@ class LoginActivity : AppCompatActivity(), View.OnClickListener {
         val password = binding.editPassword.text.toString()
 
         viewModel.login(email, password)
+    }
+
+    private fun showBiometric() {
+        val executor: Executor = ContextCompat.getMainExecutor(this)
+
+        // BiometricPrompt
+        val biometricPrompt = BiometricPrompt(this, executor,
+            object : BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    super.onAuthenticationSucceeded(result)
+                    startActivity(Intent(applicationContext, MainActivity::class.java))
+                    finish()
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                }
+
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    super.onAuthenticationError(errorCode, errString)
+                }
+            })
+
+        // Informações apresentadas no momento da autenticação
+        val info: BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
+            .setTitle("Titulo")
+            .setSubtitle("Subtítulo")
+            .setDescription("Descrição")
+            .setNegativeButtonText("Cancelar")
+            .build()
+
+        // Exibe para o usuário
+        biometricPrompt.authenticate(info)
     }
 }
